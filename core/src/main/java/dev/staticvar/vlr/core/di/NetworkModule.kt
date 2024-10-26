@@ -1,4 +1,4 @@
-package dev.staticvar.vlr.di
+package dev.staticvar.vlr.core.di
 
 import android.net.TrafficStats
 import dagger.Module
@@ -6,8 +6,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
-import dev.staticvar.vlr.BuildConfig
-import dev.staticvar.vlr.utils.Constants
+import dev.staticvar.vlr.core.BuildConfig
+import dev.staticvar.vlr.core.Constants
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.DefaultRequest
@@ -19,7 +19,6 @@ import io.ktor.client.request.headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
-import javax.inject.Named
 import javax.inject.Singleton
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
@@ -57,7 +56,6 @@ object NetworkModule {
 
   @Provides
   @Singleton
-  @Named("vlrClient")
   fun provideKtorHttpClient(json: Json, interceptors: Set<@JvmSuppressWildcards Interceptor>) =
     HttpClient(OkHttp) {
       defaultRequest {
