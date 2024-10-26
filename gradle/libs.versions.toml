@@ -108,7 +108,7 @@ jsoup = { module = "org.jsoup:jsoup", version = "1.18.1" }
 immutable-collection = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version = "0.3.7" }
 core-desugar = { module = "com.android.tools:desugar_jdk_libs", version = "2.1.2" }
 androidx-collection = { module = "androidx.collection:collection", version.ref = "collections" }
-material-kolor = { module = "com.materialkolor:material-kolor", version = "1.7.0" }
+material-kolor = { module = "com.materialkolor:material-kolor", version = "1.7.1" }
 
 sentry-bom = { module = "io.sentry:sentry-bom", version.ref = "sentry-sdk" }
 sentry = { module = "io.sentry:sentry-android" }
