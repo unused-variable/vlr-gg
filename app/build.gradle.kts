@@ -14,7 +14,7 @@ plugins {
   alias(libs.plugins.kotlin.parcelize)
   id("dagger.hilt.android.plugin")
   alias(libs.plugins.ksp.plugin)
-  alias(libs.plugins.secrets.plugin)
+//  alias(libs.plugins.secrets.plugin)
   alias(libs.plugins.baselineprofile)
   alias(libs.plugins.firebase.perf)
   alias(libs.plugins.firebase.crashlytics)
@@ -22,6 +22,7 @@ plugins {
   alias(libs.plugins.gms.plugin)
   id("vlr.detekt")
   id("vlr.ktfmt")
+  id("vlr.secrets")
 }
 
 android {

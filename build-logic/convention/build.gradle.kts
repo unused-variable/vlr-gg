@@ -37,5 +37,9 @@ gradlePlugin {
       id = "vlr.sentry"
       implementationClass = "SentryConventionPlugin"
     }
+    register("secrets") {
+      id = "vlr.secrets"
+      implementationClass = "BuildConfigSecretsConventionPlugins"
+    }
   }
 }
