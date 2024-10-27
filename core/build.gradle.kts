@@ -24,6 +24,7 @@ android {
     }
   }
   compileOptions {
+    isCoreLibraryDesugaringEnabled = true
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
   }
@@ -41,4 +42,6 @@ dependencies {
 
   implementation(libs.bundles.ktor)
   implementation(libs.logging.interceptor)
+
+  coreLibraryDesugaring(libs.core.desugar)
 }
