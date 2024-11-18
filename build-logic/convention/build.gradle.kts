@@ -41,5 +41,9 @@ gradlePlugin {
       id = "vlr.secrets"
       implementationClass = "BuildConfigSecretsConventionPlugins"
     }
+    register("lib") {
+      id = "vlr.lib"
+      implementationClass = "LibraryConfigurationConventionPlugin"
+    }
   }
 }

@@ -17,6 +17,7 @@ plugins {
   alias(libs.plugins.firebase.perf) apply false
   id("vlr.detekt")
   id("vlr.ktfmt")
+  id("vlr.lib") apply false
   id("vlr.secrets")
   alias(libs.plugins.androidTest) apply false
   alias(libs.plugins.firebase.crashlytics) apply false
