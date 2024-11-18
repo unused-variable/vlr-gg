@@ -10,11 +10,8 @@ plugins {
 
 android {
   namespace = "dev.staticvar.vlr.domain.news"
-  compileSdk = 35
 
   defaultConfig {
-    minSdk = 23
-
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
   }
@@ -30,4 +27,5 @@ android {
 dependencies {
   implementation(libs.android.annotation)
   implementation(libs.kotlinx.serialization)
+  implementation(libs.coroutines.core)
 }
