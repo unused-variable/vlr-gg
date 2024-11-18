@@ -1,15 +1,15 @@
 plugins {
   alias(libs.plugins.android.library)
   alias(libs.plugins.kotlin.android)
+  alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.ksp.plugin)
-  id("vlr.secrets")
   id("vlr.detekt")
   id("vlr.ktfmt")
-  id("dagger.hilt.android.plugin")
+  id("vlr.lib")
 }
 
 android {
-  namespace = "dev.staticvar.vlr.core"
+  namespace = "dev.staticvar.vlr.domain.news"
   compileSdk = 35
 
   defaultConfig {
@@ -25,25 +25,9 @@ android {
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
   }
-  compileOptions {
-    isCoreLibraryDesugaringEnabled = true
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-  }
-  kotlinOptions {
-    jvmTarget = "17"
-  }
 }
 
 dependencies {
-
-  implementation(libs.bundles.hilt)
-  ksp(libs.hilt.compiler)
-
+  implementation(libs.android.annotation)
   implementation(libs.kotlinx.serialization)
-
-  implementation(libs.bundles.ktor)
-  implementation(libs.logging.interceptor)
-
-  coreLibraryDesugaring(libs.core.desugar)
 }

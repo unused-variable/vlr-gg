@@ -1,11 +1,3 @@
-import java.net.URI
-
-include(":core")
-
-
-include(":designsystem")
-
-
 pluginManagement {
     includeBuild("build-logic")
     repositories {
@@ -30,3 +22,15 @@ rootProject.name = "VLR"
 include (":app")
 include (":benchmark")
 include(":baselineprofile")
+include(":domain:news")
+include(":domain:player")
+include(":domain:team")
+include(":domain:common")
+include("feature")
+include(":data")
+include(":core")
+include(":designsystem")
+include(":feature:team")
+include(":feature:common")
+include(":feature:player")
+include(":feature:news")

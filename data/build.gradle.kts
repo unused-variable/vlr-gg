@@ -2,14 +2,15 @@ plugins {
   alias(libs.plugins.android.library)
   alias(libs.plugins.kotlin.android)
   alias(libs.plugins.ksp.plugin)
+  alias(libs.plugins.kotlin.serialization)
   id("vlr.secrets")
+  id("dagger.hilt.android.plugin")
   id("vlr.detekt")
   id("vlr.ktfmt")
-  id("dagger.hilt.android.plugin")
 }
 
 android {
-  namespace = "dev.staticvar.vlr.core"
+  namespace = "dev.staticvar.vlr.data"
   compileSdk = 35
 
   defaultConfig {
@@ -36,11 +37,13 @@ android {
 }
 
 dependencies {
+  implementation(projects.core)
 
   implementation(libs.bundles.hilt)
   ksp(libs.hilt.compiler)
 
   implementation(libs.kotlinx.serialization)
+  implementation(libs.ktor.sandwich)
 
   implementation(libs.bundles.ktor)
   implementation(libs.logging.interceptor)
