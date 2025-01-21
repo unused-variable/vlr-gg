@@ -94,7 +94,7 @@ coil = { module = "io.coil-kt:coil-compose", version = "2.7.0" }
 haze = { module = "dev.chrisbanes.haze:haze", version = "1.2.2" }
 haze-materials = { module = "dev.chrisbanes.haze:haze-materials", version = "1.2.2" }
 
-kotlin-monad = { module = "com.michael-bull.kotlin-result:kotlin-result", version = "1.1.21" }
+kotlin-monad = { module = "com.michael-bull.kotlin-result:kotlin-result", version = "2.0.1" }
 
 glance-widget = { module = "androidx.glance:glance-appwidget", version = "1.1.1" }
 glance-widget-m3 = { module = "androidx.glance:glance-material3", version = "1.1.1" }
