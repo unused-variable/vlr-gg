@@ -3,7 +3,11 @@ package dev.staticvar.vlr.ui.match
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,12 +28,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -74,10 +80,14 @@ import dev.staticvar.vlr.ui.analytics.AnalyticsEvent
 import dev.staticvar.vlr.ui.analytics.LogEvent
 import dev.staticvar.vlr.ui.common.DateChip
 import dev.staticvar.vlr.ui.common.ErrorUi
+import dev.staticvar.vlr.ui.common.Illustration
 import dev.staticvar.vlr.ui.common.PullToRefreshPill
 import dev.staticvar.vlr.ui.common.ScrollHelper
+import dev.staticvar.vlr.ui.common.Tag
 import dev.staticvar.vlr.ui.common.VlrHorizontalViewPager
 import dev.staticvar.vlr.ui.common.VlrSegmentedButtons
+import dev.staticvar.vlr.ui.common.illustration.Gaming
+import dev.staticvar.vlr.ui.common.illustration.Loading
 import dev.staticvar.vlr.ui.helper.CardView
 import dev.staticvar.vlr.ui.helper.ShareDialog
 import dev.staticvar.vlr.ui.helper.SharingAppBar
@@ -146,12 +156,12 @@ fun MatchOverviewAdaptive(
           selectedItem = selectedItem ?: " ",
           listOfLazyListState = listOfLazyListState,
           contentPaddingValues =
-          PaddingValues(
-            start = innerPadding.calculateStartPadding(localLayoutDirection),
-            end = innerPadding.calculateEndPadding(localLayoutDirection),
-            top = 0.dp,
-            bottom = innerPadding.calculateBottomPadding(),
-          ),
+            PaddingValues(
+              start = innerPadding.calculateStartPadding(localLayoutDirection),
+              end = innerPadding.calculateEndPadding(localLayoutDirection),
+              top = 0.dp,
+              bottom = innerPadding.calculateBottomPadding(),
+            ),
           action = {
             selectedItem = it
             coroutineScope.launch {
@@ -200,13 +210,13 @@ fun MatchOverview(
   val resetScroll by
   remember { viewModel.resetScroll }.collectAsStateWithLifecycle(initialValue = false)
 
-  val selectedTopItemSlot by viewModel.selectedTopSlotItemPosition.collectAsStateWithLifecycle()
+  val selectedTopItemSlot by viewModel.selectedMatchTypePosition.collectAsStateWithLifecycle()
 
   LaunchedEffect(pagerState.currentPage) {
-    viewModel.updateSelectedTopSlotItemPosition(pagerState.currentPage)
+    viewModel.updateSelectedMatchTypePosition(pagerState.currentPage)
   }
 
-  LaunchedEffect(selectedTopItemSlot) { pagerState.animateScrollToPage(selectedTopItemSlot) }
+  LaunchedEffect(selectedTopItemSlot) { pagerState.scrollToPage(selectedTopItemSlot) }
 
   val modifier: Modifier = Modifier
   Column(
@@ -234,7 +244,13 @@ fun MatchOverview(
             )
           }
         }
-        .onWaiting { LinearProgressIndicator(modifier.animateContentSize()) }
+        .onWaiting {
+          Image(
+            modifier = Modifier.padding(16.dp),
+            imageVector = Illustration.Loading,
+            contentDescription = stringResource(R.string.loading),
+          )
+        }
         .onFail { Text(text = message()) }
     }
   }
@@ -375,14 +391,14 @@ fun MatchOverviewContainer(
       val scope = rememberCoroutineScope()
       VlrSegmentedButtons(
         modifier =
-        Modifier
-          .align(Alignment.BottomCenter)
-          .padding(bottom = 8.dp)
-          .navigationBarsPadding(),
+          Modifier
+            .align(Alignment.BottomCenter)
+            .padding(bottom = 8.dp)
+            .navigationBarsPadding(),
         highlighted = pagerState.currentPage,
         items = tabs,
       ) { _, index ->
-        scope.launch { pagerState.animateScrollToPage(index) }
+        scope.launch { pagerState.scrollToPage(index) }
       }
     }
   }
@@ -405,6 +421,7 @@ inline fun PagerContent(
   noinline postResetScroll: () -> Unit,
   crossinline shareStateToggle: (Boolean) -> Unit,
 ) {
+  var shareStateHolder by remember { mutableStateOf(shareState) }
   val haptic = LocalHapticFeedback.current
   if (list.isEmpty()) {
     NoMatchUI(modifier = modifier)
@@ -434,29 +451,31 @@ inline fun PagerContent(
             isSelected = it in shareMatchList,
             selectedItem = selectedItem,
             onAction = { longPress, match ->
-              if (longPress) shareStateToggle(true) // If long press enable share bar
+              if (longPress) {
+                shareStateHolder = true
+                // If long press enable share bar
+                shareStateToggle(true)
+              }
               when {
-                shareState && shareMatchList.contains(match) -> {
+                shareStateHolder && shareMatchList.contains(match) -> {
                   // If in share mode &
                   // If match is already in the list and is being clicked again, remove
-                  // the
-                  // item
+                  // the item
                   shareMatchList.remove(match)
                   haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
 
-                shareState &&
+                shareStateHolder &&
                     !shareMatchList.contains(match) &&
                     shareMatchList.size < MAX_SHARABLE_ITEMS -> {
                   // If in share mode &
                   // If list does not have 6 items and if the clicked icon is not already
-                  // in
-                  // the list
+                  // in the list
                   shareMatchList.add(match)
                   haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
 
-                !shareState ->
+                !shareStateHolder ->
                   onClick(match.id) // Its a normal click, navigate to the action
               }
             },
@@ -469,11 +488,18 @@ inline fun PagerContent(
 
 @Composable
 fun NoMatchUI(modifier: Modifier = Modifier) {
-  Column(modifier = modifier.fillMaxSize()) {
+  Column(modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
     Spacer(modifier = modifier.weight(1f))
+    Image(
+      modifier = Modifier.padding(16.dp),
+      imageVector = Illustration.Gaming,
+      contentDescription = stringResource(R.string.no_match),
+    )
     Text(
       text = stringResource(R.string.no_match),
-      modifier = modifier.fillMaxWidth(),
+      modifier = modifier
+        .fillMaxWidth()
+        .padding(bottom = 72.dp),
       textAlign = TextAlign.Center,
       style = VLRTheme.typography.bodyLarge,
       color = VLRTheme.colorScheme.primary,
@@ -491,52 +517,83 @@ fun MatchOverviewPreview(
   selectedItem: String,
   onAction: (Boolean, MatchPreviewInfo) -> Unit,
 ) {
+  val animatedBorder by animateDpAsState(
+    targetValue = if (matchPreviewInfo.markedFav) 1.dp else -1.dp,
+    tween(300)
+  )
   CardView(
     modifier =
-    modifier.pointerInput(Unit) {
-      detectTapGestures(
-        onPress = {},
-        onDoubleTap = {},
-        onLongPress = { onAction(true, matchPreviewInfo) },
-        onTap = { onAction(false, matchPreviewInfo) },
-      )
-    },
+      modifier
+        .border(
+          width = animatedBorder,
+          color = VLRTheme.colorScheme.primary,
+          shape = RoundedCornerShape(8.dp)
+        )
+        .pointerInput(Unit) {
+          detectTapGestures(
+            onPress = {},
+            onDoubleTap = {},
+            onLongPress = { onAction(true, matchPreviewInfo) },
+            onTap = { onAction(false, matchPreviewInfo) },
+          )
+        },
     colors =
-    if (matchPreviewInfo.id == selectedItem) {
-      CardDefaults.elevatedCardColors(
-        containerColor = VLRTheme.colorScheme.secondaryContainer,
-        contentColor = VLRTheme.colorScheme.onSecondaryContainer,
-      )
-    } else {
-      CardDefaults.elevatedCardColors()
-    },
+      if (matchPreviewInfo.id == selectedItem) {
+        CardDefaults.elevatedCardColors(
+          containerColor = VLRTheme.colorScheme.secondaryContainer,
+          contentColor = VLRTheme.colorScheme.onSecondaryContainer,
+        )
+      } else {
+        CardDefaults.elevatedCardColors()
+      },
   ) {
     Column(
       modifier = modifier
         .padding(Local4DPPadding.current)
         .animateContentSize()
     ) {
-      Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+      Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(
           text =
-          when {
-            matchPreviewInfo.status.equals(stringResource(id = R.string.live), true) -> {
-              stringResource(id = R.string.live)
-            }
+            when {
+              matchPreviewInfo.status.equals(stringResource(id = R.string.live), true) -> {
+                stringResource(id = R.string.live)
+              }
 
-            !matchPreviewInfo.time?.timeDiff.isNullOrBlank() -> {
-              matchPreviewInfo.time?.timeDiff?.plus(" (${matchPreviewInfo.time.readableTime})")
-                ?: ""
-            }
+              !matchPreviewInfo.time?.timeDiff.isNullOrBlank() -> {
+                matchPreviewInfo.time?.timeDiff?.plus(" (${matchPreviewInfo.time.readableTime})")
+                  ?: ""
+              }
 
-            else -> ""
-          },
+              else -> ""
+            },
           modifier = modifier
-            .fillMaxWidth()
             .padding(Local8DP_4DPPadding.current),
-          textAlign = TextAlign.Center,
           style = VLRTheme.typography.bodyMedium,
         )
+
+        Row(
+          modifier = Modifier
+            .weight(1f)
+            .padding(Local8DP_4DPPadding.current),
+          horizontalArrangement = Arrangement.End
+        ) {
+          AnimatedVisibility(
+            visible = matchPreviewInfo.markedFav && !shareMode
+          ) {
+            with(matchPreviewInfo) {
+              Tag(
+                text =
+                  if (fromEventsFav && fromTeamsFav) stringResource(R.string.team_and_event)
+                  else if (fromTeamsFav) stringResource(R.string.team)
+                  else if (fromEventsFav) stringResource(R.string.event)
+                  else if (markedFav) stringResource(R.string.match)
+                  else "",
+                icon = Icons.Filled.Favorite
+              )
+            }
+          }
+        }
 
         if (shareMode)
           Checkbox(checked = isSelected, onCheckedChange = { onAction(false, matchPreviewInfo) })

@@ -2,6 +2,7 @@ package dev.staticvar.vlr.data.api.response
 
 import androidx.annotation.Keep
 import androidx.compose.runtime.Immutable
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.SerialName
@@ -18,5 +19,12 @@ data class MatchPreviewInfo(
   @SerialName("status") val status: String = "", // completed
   @SerialName("team1") val team1: Team = Team(),
   @SerialName("team2") val team2: Team = Team(),
-  @SerialName("time") val time: String? = null // 13h
+  @SerialName("time") val time: String? = null, // 13h
+  @SerialName("event_id") @ColumnInfo("eventId", defaultValue = "")val eventId: String = "",
+  @ColumnInfo("markedFav", defaultValue = "0")
+  val markedFav: Boolean = false,
+  @ColumnInfo("fromTeamsFav", defaultValue = "0")
+  val fromTeamsFav: Boolean = false,
+  @ColumnInfo("fromEventsFav", defaultValue = "0")
+  val fromEventsFav: Boolean = false,
 )

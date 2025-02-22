@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -26,11 +25,18 @@ class VlrViewModel @Inject constructor(private val repository: VlrRepository) : 
   private var _resetScroll: MutableSharedFlow<Boolean> = MutableSharedFlow(0)
   val resetScroll: SharedFlow<Boolean> = _resetScroll
 
-  private var _selectedTopSlotItemPosition: MutableStateFlow<Int> = MutableStateFlow(0)
-  val selectedTopSlotItemPosition: StateFlow<Int> = _selectedTopSlotItemPosition
+  private var _selectedMatchTypePosition: MutableStateFlow<Int> = MutableStateFlow(0)
+  val selectedMatchTypePosition: StateFlow<Int> = _selectedMatchTypePosition
 
-  fun updateSelectedTopSlotItemPosition(position: Int) {
-    viewModelScope.launch { _selectedTopSlotItemPosition.update { position } }
+  fun updateSelectedMatchTypePosition(position: Int) {
+    viewModelScope.launch { _selectedMatchTypePosition.emit(position) }
+  }
+
+  private var _selectedEventTypePosition: MutableStateFlow<Int> = MutableStateFlow(0)
+  val selectedEventTypePosition: StateFlow<Int> = _selectedEventTypePosition
+
+  fun updateSelectedEventTypePosition(position: Int) {
+    viewModelScope.launch { _selectedEventTypePosition.emit(position) }
   }
 
   fun hideNavbar(hide: Boolean) {
@@ -101,12 +107,19 @@ class VlrViewModel @Inject constructor(private val repository: VlrRepository) : 
   fun getPlayerDetails(id: String) =
     repository.getPlayerDetailsFromDb(id).stateIn(viewModelScope, SharingStarted.Lazily, Waiting())
 
-  fun trackTopic(topic: String) = viewModelScope.launch { repository.trackTopic(topic) }
-
-  fun isTopicTracked(topic: String) = repository.isTopicTracked(topic)
-
-  fun removeTopic(topic: String) = viewModelScope.launch { repository.removeTopic(topic) }
-
   fun parseNews(id: String) =
     repository.parseNews(id).stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+  fun trackMatch(id: String) = viewModelScope.launch { repository.addFavoriteMatch(id) }
+  fun untrackMatch(id: String) = viewModelScope.launch { repository.removeFavoriteMatch(id) }
+
+  fun trackEvent(id: String) =
+    viewModelScope.launch { repository.addFavoriteEvent(id) }
+
+  fun untrackEvent(id: String) =
+    viewModelScope.launch { repository.removeFavoriteEvent(id) }
+
+  fun trackTeam(id: String) = viewModelScope.launch { repository.addFavoriteTeam(id) }
+  fun untrackTeam(id: String) = viewModelScope.launch { repository.removeFavoriteTeam(id) }
+
 }
